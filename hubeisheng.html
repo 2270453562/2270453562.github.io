@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>湖北省高职院校分布查询系统 (2025 增强版)</title>
+    <title>湖北省高职院校分布查询</title>
     <style>
         :root {
             --bg-color: #f0f4f8;
@@ -33,7 +33,6 @@
         .header h1 { font-size: 24px; margin: 0; color: var(--text-dark); }
         .header p { color: var(--text-gray); margin-top: 8px; font-size: 13px; }
 
-        /* 省份切换导航 */
         .province-nav {
             display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
         }
@@ -47,10 +46,7 @@
             box-shadow: 0 4px 10px rgba(253, 58, 9, 0.2);
         }
 
-        /* 主容器：PC端保持并排，移动端堆叠 */
-        .main-container { 
-            display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; height: 78vh; 
-        }
+        .main-container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; min-height: 78vh; }
 
         .map-section {
             flex: 1.6; background: var(--card-bg); border-radius: 20px;
@@ -62,12 +58,12 @@
 
         .city-spot {
             position: absolute; background: rgba(255, 255, 255, 0.95); padding: 5px 12px; 
-            border-radius: 30px; font-size: 13px; font-weight: bold; cursor: pointer; 
-            box-shadow: 0 3px 8px rgba(0,0,0,0.15); transition: all 0.3s ease;
-            transform: translate(-50%, -50%); border: 1px solid #cbd5e1; z-index: 10; white-space: nowrap;
+            border-radius: 30px; font-size: 12px; font-weight: bold; cursor: pointer; 
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15); transition: 0.2s;
+            transform: translate(-50%, -50%); border: 1px solid #cbd5e1; z-index: 10;
         }
 
-        .dh-num { color: var(--highlight-green); margin-left: 2px; font-size: 14px; }
+        .dh-num { color: var(--highlight-green); margin-left: 2px; font-size: 13px; }
 
         .city-spot:hover, .city-spot.active {
             background: var(--primary); color: white; transform: translate(-50%, -50%) scale(1.1);
@@ -102,35 +98,33 @@
 
         .school-card {
             background: #f8fafc; border-radius: 8px; margin-bottom: 6px; border: 1px solid #edf2f7;
-            padding: 10px; cursor: pointer; transition: 0.2s;
+            padding: 10px; cursor: pointer;
         }
         .school-card:hover { border-color: var(--primary); }
         .school-card.undergrad-card { border-left: 4px solid #f97316; }
 
-        .school-name { font-size: 14px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; display: block; }
+        .school-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; display: block; }
         .tag-row { display: flex; gap: 4px; flex-wrap: wrap; }
         .tag { font-size: 9px; padding: 1px 6px; border-radius: 4px; font-weight: 600; }
         .tag-double-high { background: var(--tag-double-high-bg); color: var(--tag-double-high-text); }
         .tag-cat { background: var(--tag-cat-bg); color: var(--tag-cat-text); }
-        .tag-type { background: var(--tag-type-bg); color: var(--tag-type-text); } 
-        .tag-level { background: var(--tag-level-bg); color: var(--tag-level-text); } 
+        .tag-type { background: var(--tag-type-bg); color: var(--tag-type-text); }
+        .tag-level { background: var(--tag-level-bg); color: var(--tag-level-text); }
 
-        .school-detail { display: none; font-size: 11px; color: #64748b; margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px; line-height: 1.6; }
+        .school-detail { display: none; font-size: 11px; color: #64748b; margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px; }
         .school-card.detail-active .school-detail { display: block; }
         .detail-label { width: 75px; display: inline-block; color: #94a3b8; }
         .detail-val { color: #334155; }
 
-        /* 移动端适配 */
         @media (max-width: 850px) {
             body { padding: 10px; }
             .main-container { flex-direction: column; height: auto; }
             .map-section { flex: none; width: 100%; }
             .city-spot { padding: 3px 8px; font-size: 10px; }
-            .dh-num { font-size: 11px; }
-            .info-section { height: 550px; margin-top: 10px; }
+            .info-section { height: 500px; margin-top: 10px; }
         }
 
-             /* 坐标校准 */
+        /* 坐标校准 */
         #spot-wuhan { top: 60%; left: 74%; } 
         #spot-xiangyang { top: 40%; left: 48%; } 
         #spot-yichang { top: 59%; left: 38%; } 
@@ -143,7 +137,7 @@
         #spot-suizhou { top: 40%; left: 62%; } 
         #spot-xiantao { top: 72%; left: 63%; } 
         #spot-qianjiang { top: 72%; left: 56%; } 
-        #spot-tianmen { top: 65%; left: 61%; } /* 新增天门坐标 */
+        #spot-tianmen { top: 61%; left: 60%; } 
         #spot-enshi { top: 73%; left: 22%; } 
         #spot-xianning { top: 82%; left: 74%; } 
         #spot-ezhou { top: 69%; left: 77%; } 
@@ -153,7 +147,7 @@
 
     <div class="header">
         <h1>🎓 湖北省高职院校分布查询系统</h1>
-        <p>✨ 国家“双高计划”单位已绿色数字标出 | 学校可重叠出现在不同分类中</p>
+        <p>✨ 只有非本科、非双高的学校才归入普通专科分类 | 该市总数保持唯一统计</p>
     </div>
 
     <div class="province-nav">
@@ -307,23 +301,28 @@
             const body = document.getElementById('info-body');
             document.getElementById('title-city').innerText = cityName;
             
-            // 总数统计：基于 schools 的原始长度，确保唯一性
+            // 总数统计：基于 schools 的原始唯一长度
             document.getElementById('count-text').innerText = `📊 该区域共收录 ${schools.length} 所院校`;
 
-            // 分类容器：允许一校多类
-            const groups = { "职业本科": [], "双高院校": [], "公办专科": [], "民办专科": [] };
+            const groups = { "职业本科": [], "双高院校": [], "公办专科（非双高）": [], "民办专科（非双高）": [] };
 
             schools.forEach(s => {
                 const isDH = doubleHighNames.includes(s.name);
                 const isU = s.level === "职业本科";
 
-                // 分类逻辑（改为并列判断，不使用 else if）
+                // --- 逻辑调整部分 ---
+                
+                // 1. 如果是本科，进入本科组（本科可以是双高，所以单独判断）
                 if (isU) groups["职业本科"].push(s);
+                
+                // 2. 如果是双高，进入双高组
                 if (isDH) groups["双高院校"].push(s);
                 
-                // 公办/民办分类（如果是本科也会出现在这里）
-                if (s.type === "公办") groups["公办专科"].push(s);
-                else groups["民办专科"].push(s);
+                // 3. 只有【既不是本科】且【也不是双高】的学校，才进入普通专科组
+                if (!isU && !isDH) {
+                    if (s.type === "公办") groups["公办专科"].push(s);
+                    else groups["民办专科"].push(s);
+                }
             });
 
             const isBigCity = (cityName === '武汉市' || cityName === '宜昌市' || cityName === '襄阳市');
@@ -333,7 +332,6 @@
             order.forEach(title => {
                 const list = groups[title];
                 if (list && list.length > 0) {
-                    // 大城市默认收起非核心分类，小城市全展开
                     const expandedClass = (isBigCity && title !== "职业本科" && title !== "双高院校") ? '' : 'expanded';
                     
                     html += `
