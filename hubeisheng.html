@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>湖北省高职院校分布查询系统 (2025 增强版)</title>
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --primary: #fd3a09; 
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --tag-type-bg: #e0f2fe;
+            --tag-type-text: #0369a1;
+            --tag-level-bg: #f0fdf4;
+            --tag-level-text: #166534;
+            --tag-cat-bg: #f5f3ff;
+            --tag-cat-text: #5b21b6;
+            --tag-double-high-bg: #fff1f2;
+            --tag-double-high-text: #e11d48;
+            --undergrad-bg: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%);
+            --highlight-green: #10b981; 
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--bg-color);
+            margin: 0; padding: 20px; color: var(--text-dark); user-select: none;
+        }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { font-size: 26px; margin: 0; color: var(--text-dark); }
+        .header p { color: var(--text-gray); margin-top: 8px; font-size: 14px; }
+
+        .main-container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; height: 88vh; }
+
+        .map-section {
+            flex: 1.6; background: var(--card-bg); border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        }
+
+        .map-image { width: 100%; height: 95%; object-fit: contain; }
+
+        .city-spot {
+            position: absolute; background: white; padding: 6px 14px; border-radius: 30px; font-size: 13px;
+            font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translate(-50%, -50%); border: 1px solid #cbd5e1; z-index: 10; white-space: nowrap;
+        }
+
+        .dh-num { color: var(--highlight-green); margin-left: 4px; font-size: 15px; }
+
+        .city-spot:hover, .city-spot.active {
+            background: var(--primary); color: white; transform: translate(-50%, -50%) scale(1.15);
+            z-index: 20; border-color: var(--primary);
+        }
+        .city-spot:hover .dh-num, .city-spot.active .dh-num { color: #ffffff; }
+
+        .info-section {
+            flex: 1; background: var(--card-bg); border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        .info-header { padding: 20px; background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-bottom: 1px solid #e2e8f0; }
+        .city-title { font-size: 22px; margin: 0; font-weight: 800; }
+        .city-hint { font-size: 12px; color: var(--text-gray); margin-top: 4px; }
+
+        .info-body { padding: 15px; overflow-y: auto; flex: 1; }
+        .info-body::-webkit-scrollbar { width: 5px; }
+        .info-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .category-block { margin-bottom: 12px; }
+        .category-name {
+            background: #f1f5f9; padding: 12px 16px; border-radius: 10px; font-size: 14px;
+            font-weight: 700; color: #334155; cursor: pointer; display: flex;
+            justify-content: space-between; align-items: center; transition: background 0.2s;
+        }
+        .category-name:hover { background: #e2e8f0; }
+        .category-name::after { content: '展开'; font-size: 11px; color: var(--text-gray); font-weight: normal; }
+        .category-block.expanded .category-name::after { content: '收回'; }
+
+        .school-list { display: none; padding: 10px 5px 0 5px; }
+        .category-block.expanded .school-list { display: block; }
+
+        .school-card {
+            background: #f8fafc; border-radius: 10px; margin-bottom: 8px; border: 1px solid #edf2f7;
+            padding: 12px 15px; cursor: pointer; transition: all 0.2s;
+        }
+        .school-card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .school-card.undergrad-card { background: var(--undergrad-bg); border-left: 4px solid #f97316; }
+
+        .school-name { font-size: 15px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; display: block; }
+        .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+        .tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+        
+        .tag-double-high { background: var(--tag-double-high-bg); color: var(--tag-double-high-text); border: 1px solid #fecdd3; }
+        .tag-cat { background: var(--tag-cat-bg); color: var(--tag-cat-text); }
+        .tag-type { background: var(--tag-type-bg); color: var(--tag-type-text); } 
+        .tag-level { background: var(--tag-level-bg); color: var(--tag-level-text); } 
+
+        .school-divider { border-top: 1px dashed #e2e8f0; margin: 10px 0; display: none; }
+        .school-card.detail-active .school-divider { display: block; }
+
+        .school-detail { display: none; font-size: 13px; color: #64748b; line-height: 1.8; }
+        .school-card.detail-active .school-detail { display: block; }
+
+        .detail-item { display: flex; align-items: flex-start; }
+        .detail-label { width: 95px; flex-shrink: 0; color: #94a3b8; }
+        .detail-val { color: #334155; font-weight: 500; }
+
+        .status-tag { padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .status-zb { background: #dcfce7; color: #166534; }
+        .status-xb { background: #fff7ed; color: #9a3412; }
+        .status-tb { background: #f1f5f9; color: #64748b; }
+
+        /* 坐标校准 */
+        #spot-wuhan { top: 60%; left: 74%; } 
+        #spot-xiangyang { top: 45%; left: 48%; } 
+        #spot-yichang { top: 58%; left: 38%; } 
+        #spot-shiyan { top: 35%; left: 33%; } 
+        #spot-xiaogan { top: 54%; left: 68%; } 
+        #spot-jingmen { top: 54%; left: 52%; } 
+        #spot-jingzhou { top: 68%; left: 48%; } 
+        #spot-huangshi { top: 68%; left: 82.5%; } 
+        #spot-huanggang { top: 60%; left: 86%; } 
+        #spot-suizhou { top: 43%; left: 62%; } 
+        #spot-xiantao { top: 65%; left: 63%; } 
+        #spot-qianjiang { top: 65%; left: 56%; } 
+        #spot-enshi { top: 69%; left: 22%; } 
+        #spot-xianning { top: 72%; left: 74%; } 
+        #spot-ezhou { top: 64%; left: 79%; } 
+
+        @media (max-width: 900px) {
+            .main-container { flex-direction: column; height: auto; }
+            .info-section { height: 500px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🎓 湖北省高职院校分布查询系统</h1>
+        <p>二级卡片显示：性质类别、举办者类型、级别 | ✨ 仅标记国家“双高计划”单位</p>
+    </div>
+
+    <div class="main-container">
+        <div class="map-section">
+            <img src="hubeisheng.png" class="map-image" alt="湖北省地图">
+            <div class="city-spot" id="spot-wuhan" data-city="武汉市" onclick="render('武汉市')">武汉</div>
+            <div class="city-spot" id="spot-xiangyang" data-city="襄阳市" onclick="render('襄阳市')">襄阳</div>
+            <div class="city-spot" id="spot-yichang" data-city="宜昌市" onclick="render('宜昌市')">宜昌</div>
+            <div class="city-spot" id="spot-shiyan" data-city="十堰市" onclick="render('十堰市')">十堰</div>
+            <div class="city-spot" id="spot-xiaogan" data-city="孝感市" onclick="render('孝感市')">孝感</div>
+            <div class="city-spot" id="spot-jingmen" data-city="荆门市" onclick="render('荆门市')">荆门</div>
+            <div class="city-spot" id="spot-jingzhou" data-city="荆州市" onclick="render('荆州市')">荆州</div>
+            <div class="city-spot" id="spot-huangshi" data-city="黄石市" onclick="render('黄石市')">黄石</div>
+            <div class="city-spot" id="spot-huanggang" data-city="黄冈市" onclick="render('黄冈市')">黄冈</div>
+            <div class="city-spot" id="spot-suizhou" data-city="随州市" onclick="render('随州市')">随州</div>
+            <div class="city-spot" id="spot-xiantao" data-city="仙桃市" onclick="render('仙桃市')">仙桃</div>
+            <div class="city-spot" id="spot-qianjiang" data-city="潜江市" onclick="render('潜江市')">潜江</div>
+            <div class="city-spot" id="spot-enshi" data-city="恩施土家族苗族自治州" onclick="render('恩施土家族苗族自治州')">恩施</div>
+            <div class="city-spot" id="spot-xianning" data-city="咸宁市" onclick="render('咸宁市')">咸宁</div>
+            <div class="city-spot" id="spot-ezhou" data-city="鄂州市" onclick="render('鄂州市')">鄂州</div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-header">
+                <h2 class="city-title" id="title-city">请选择城市</h2>
+                <div class="city-hint" id="count-text">点击地图进行查询</div>
+            </div>
+            <div class="info-body" id="info-body"></div>
+        </div>
+    </div>
+
+    <script>
+        const doubleHighNames = [
+            "武汉职业技术大学", "武汉船舶职业技术学院", "武汉城市职业学院", "武汉软件工程职业学院",
+            "武汉交通职业学院", "武汉铁路职业技术学院", "襄阳职业技术大学", "湖北三峡职业技术大学"
+        ];
+        
+        const rawData = [
+            { name: "武汉职业技术大学", city: "武汉市", cat: "02理工院校", level: "职业本科", type: "公办", status: "在办", sponsor: "湖北省人民政府", sType: "省级教育部门" },
+            { name: "黄冈职业技术大学", city: "黄冈市", cat: "02理工院校", level: "职业本科", type: "公办", status: "在办", sponsor: "黄冈市人民政府", sType: "地级其他部门" },
+            { name: "襄阳职业技术大学", city: "襄阳市", cat: "02理工院校", level: "职业本科", type: "公办", status: "在办", sponsor: "襄阳市人民政府", sType: "地级其他部门" },
+            { name: "湖北三峡职业技术大学", city: "宜昌市", cat: "02理工院校", level: "职业本科", type: "公办", status: "在办", sponsor: "宜昌市人民政府", sType: "地级教育部门" },
+            { name: "黄冈职业技术学院", city: "黄冈市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "黄冈市人民政府", sType: "地级其他部门" },
+            { name: "长江职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省教育厅", sType: "省级教育部门" },
+            { name: "荆州理工职业学院", city: "荆州市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "荆州市人民政府", sType: "地级其他部门" },
+            { name: "湖北工业职业技术学院", city: "十堰市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "十堰市人民政府", sType: "地级其他部门" },
+            { name: "鄂州职业大学", city: "鄂州市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "鄂州市人民政府", sType: "地级其他部门" },
+            { name: "武汉城市职业学院", city: "武汉市", cat: "06师范院校", level: "高职专科", type: "公办", status: "在办", sponsor: "武汉市人民政府", sType: "省级其他部门" },
+            { name: "湖北职业技术学院", city: "孝感市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "孝感市人民政府", sType: "地级其他部门" },
+            { name: "武汉船舶职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省人民政府", sType: "省级教育部门" },
+            { name: "恩施职业技术学院", city: "恩施土家族苗族自治州", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "恩施州人民政府", sType: "地级其他部门" },
+            { name: "襄阳职业技术学院", city: "襄阳市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "襄阳市人民政府", sType: "地级其他部门" },
+            { name: "武汉工贸职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "民办", status: "在办", sponsor: "武汉新迪纺织有限公司", sType: "民办" },
+            { name: "荆州职业技术学院", city: "荆州市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "荆州市教育局", sType: "地级其他部门" },
+            { name: "武汉工程职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "中国宝武钢铁集团有限公司", sType: "地方企业" },
+            { name: "仙桃职业学院", city: "仙桃市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "仙桃市人民政府", sType: "地级其他部门" },
+            { name: "湖北轻工职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省教育厅", sType: "省级教育部门" },
+            { name: "湖北交通职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省交通运输厅", sType: "省级其他部门" },
+            { name: "湖北中医药高等专科学校", city: "荆州市", cat: "05医药院校", level: "高职专科", type: "公办", status: "在办", sponsor: "荆州市人民政府", sType: "地级其他部门" },
+            { name: "武汉航海职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "中国长江航运集团", sType: "省级其他部门" },
+            { name: "武汉铁路职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省人民政府", sType: "省级教育部门" },
+            { name: "武汉软件工程职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "武汉市人民政府", sType: "地级其他部门" },
+            { name: "湖北三峡职业技术学院", city: "宜昌市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "宜昌市人民政府", sType: "地级教育部门" },
+            { name: "随州职业技术学院", city: "随州市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "随州市人民政府", sType: "地级其他部门" },
+            { name: "武汉电力职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "国网湖北省电力有限公司", sType: "省级其他部门" },
+            { name: "湖北水利水电职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省水利厅", sType: "省级其他部门" },
+            { name: "湖北城市建设职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省住房与城乡建设厅", sType: "省级其他部门" },
+            { name: "武汉警官职业学院", city: "武汉市", cat: "09政法院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省司法厅", sType: "省级其他部门" },
+            { name: "湖北生物科技职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省农业农村厅", sType: "省级其他部门" },
+            { name: "湖北开放职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "民办", status: "在办", sponsor: "湖北农村函授教育中心", sType: "民办" },
+            { name: "武汉科技职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "民办", status: "在办", sponsor: "武汉科技职业学院", sType: "民办" },
+            { name: "武汉外语外事职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "民办", status: "在办", sponsor: "星汉海教育公司", sType: "民办" },
+            { name: "武汉信息传播职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "民办", status: "在办", sponsor: "湖北知音传媒集团", sType: "民办" },
+            { name: "武昌职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "民办", status: "在办", sponsor: "春天科教集团", sType: "民办" },
+            { name: "武汉商贸职业学院", city: "武汉市", cat: "08财经院校", level: "高职专科", type: "民办", status: "在办", sponsor: "创业阳光电子", sType: "民办" },
+            { name: "湖北艺术职业学院", city: "武汉市", cat: "11艺术院校", level: "高职专科", type: "公办", status: "在办", sponsor: "省文化和旅游厅", sType: "省级其他部门" },
+            { name: "咸宁职业技术学院", city: "咸宁市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "咸宁市人民政府", sType: "地级其他部门" },
+            { name: "长江工程职业技术学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省人民政府", sType: "省级教育部门" },
+            { name: "江汉艺术职业学院", city: "潜江市", cat: "11艺术院校", level: "高职专科", type: "公办", status: "在办", sponsor: "潜江市人民政府", sType: "地级其他部门" },
+            { name: "武汉民政职业学院", city: "武汉市", cat: "09政法院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省民政厅", sType: "省级其他部门" },
+            { name: "湖北黄冈应急管理职业技术学院", city: "黄冈市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省", sType: "地级其他部门" },
+            { name: "湖北财税职业学院", city: "武汉市", cat: "08财经院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省税务局", sType: "省级其他部门" },
+            { name: "黄冈科技职业学院", city: "黄冈市", cat: "02理工院校", level: "高职专科", type: "民办", status: "在办", sponsor: "郁金香教育", sType: "民办" },
+            { name: "湖北国土资源职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省地质局", sType: "省级其他部门" },
+            { name: "湖北生态工程职业技术学院", city: "武汉市", cat: "04林业院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省林业厅", sType: "省级其他部门" },
+            { name: "三峡电力职业学院", city: "宜昌市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "葛洲坝资产公司", sType: "省级其他部门" },
+            { name: "湖北科技职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "省人民政府", sType: "省级其他部门" },
+            { name: "湖北青年职业学院", city: "武汉市", cat: "09政法院校", level: "高职专科", type: "公办", status: "停办", sponsor: "暂无", sType: "省级其他部门" },
+            { name: "湖北工程职业学院", city: "黄石市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "黄石市政府", sType: "省级教育部门" },
+            { name: "三峡旅游职业技术学院", city: "宜昌市", cat: "06师范院校", level: "高职专科", type: "公办", status: "在办", sponsor: "宜昌市人民政府", sType: "地级教育部门" },
+            { name: "天门职业学院", city: "天门市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "天门市人民政府", sType: "省级其他部门" },
+            { name: "湖北体育职业学院", city: "武汉市", cat: "10体育院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省体育局", sType: "省级其他部门" },
+            { name: "襄阳汽车职业技术学院", city: "襄阳市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "襄阳市人民政府", sType: "地级其他部门" },
+            { name: "湖北幼儿师范高等专科学校", city: "武汉市", cat: "06师范院校", level: "高职专科", type: "公办", status: "在办", sponsor: "湖北省教育厅", sType: "省级教育部门" },
+            { name: "湖北铁道运输职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "省人社厅", sType: "省级教育部门" },
+            { name: "武汉海事职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "长江通信管理局", sType: "省级教育部门" },
+            { name: "长江艺术工程职业学院", city: "荆州市", cat: "02理工院校", level: "高职专科", type: "民办", status: "在办", sponsor: "民办", sType: "民办" },
+            { name: "荆门职业学院", city: "荆门市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "荆门市教育局", sType: "省级教育部门" },
+            { name: "武汉铁路桥梁职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "公办", status: "在办", sponsor: "中铁国资", sType: "省级教育部门" },
+            { name: "武汉光谷职业学院", city: "武汉市", cat: "02理工院校", level: "高职专科", type: "民办", status: "在办", sponsor: "微丹科教", sType: "民办" },
+            { name: "湖北健康职业学院", city: "咸宁市", cat: "05医药院校", level: "高职专科", type: "民办", status: "在办", sponsor: "春来教育", sType: "民办" },
+            { name: "湖北孝感美珈职业学院", city: "孝感市", cat: "02理工院校", level: "高职专科", type: "民办", status: "在办", sponsor: "乐群教育", sType: "民办" },
+            { name: "襄阳科技职业学院", city: "襄阳市", cat: "02理工院校", level: "高职专科", type: "公办", status: "新办", sponsor: "湖北省", sType: "省级教育部门" },
+            { name: "宜昌科技职业学院", city: "宜昌市", cat: "02理工院校", level: "高职专科", type: "公办", status: "新办", sponsor: "湖北省", sType: "地级教育部门" }
+        ];
+
+        const cityMap = {};
+        const dhCityCount = {};
+
+        rawData.forEach(item => {
+            if (!cityMap[item.city]) cityMap[item.city] = [];
+            cityMap[item.city].push(item);
+            if(doubleHighNames.includes(item.name)) {
+                dhCityCount[item.city] = (dhCityCount[item.city] || 0) + 1;
+            }
+        });
+
+        // 新增函数，根据学校信息生成简化的级别标签
+        function getSponsorLevelTag(school) {
+            if (school.type === '民办') {
+                return '民办';
+            }
+            if (school.sType && school.sType.includes('省级')) {
+                return '省级';
+            }
+            return '地级';
+        }
+
+        function initMapLabels() {
+            document.querySelectorAll('.city-spot').forEach(spot => {
+                const cityName = spot.getAttribute('data-city');
+                const count = dhCityCount[cityName] || 0;
+                const shortName = spot.innerText;
+                if(count > 0) {
+                    spot.innerHTML = `✨ ${shortName}<span class="dh-num">${count}</span>`;
+                }
+            });
+        }
+
+        function render(cityName) {
+            document.querySelectorAll('.city-spot').forEach(s => s.classList.remove('active'));
+            const targetSpot = Array.from(document.querySelectorAll('.city-spot')).find(s => 
+                s.getAttribute('data-city') === cityName
+            );
+            if(targetSpot) targetSpot.classList.add('active');
+
+            const schools = cityMap[cityName] || [];
+            const body = document.getElementById('info-body');
+            document.getElementById('title-city').innerText = cityName;
+            document.getElementById('count-text').innerText = `📊 该区域共收录 ${schools.length} 所院校`;
+
+            const groups = { "职业本科": [], "双高院校": [], "公办专科": [], "民办专科": [] };
+
+            schools.forEach(s => {
+                const isDH = doubleHighNames.includes(s.name);
+                if (isDH) groups["双高院校"].push(s);
+                if (s.level === "职业本科") groups["职业本科"].push(s);
+                else if (s.type === "公办") groups["公办专科"].push(s);
+                else groups["民办专科"].push(s);
+            });
+
+            const isBigCity = (cityName === '武汉市' || cityName === '宜昌市' || cityName === '襄阳市');
+            let html = '';
+            const order = ["职业本科", "双高院校", "公办专科", "民办专科"];
+            
+            order.forEach(title => {
+                const list = groups[title];
+                if (list && list.length > 0) {
+                    const expandedClass = (isBigCity && title !== "职业本科" && title !== "双高院校") ? '' : 'expanded';
+                    
+                    html += `
+                    <div class="category-block ${expandedClass}" id="block-${title}">
+                        <div class="category-name" onclick="toggleCategory('${title}')">
+                            ${title === "双高院校" ? '✨ ' : ''}${title} (${list.length})
+                        </div>
+                        <div class="school-list">
+                            ${list.map(s => {
+                                const isDH = doubleHighNames.includes(s.name);
+                                const isU = s.level === "职业本科";
+                                const statusClass = s.status === '在办' ? 'status-zb' : (s.status === '新办' ? 'status-xb' : 'status-tb');
+                                const levelTag = getSponsorLevelTag(s); // 调用新函数生成级别标签
+
+                                return `
+                                <div class="school-card ${isU ? 'undergrad-card' : ''}" onclick="toggleSchool(this)">
+                                    <span class="school-name">${s.name}</span>
+                                    <div class="tag-row">
+                                        ${isDH ? '<span class="tag tag-double-high">✨ 双高计划</span>' : ''}
+                                        <span class="tag tag-cat">${s.cat.replace(/^\d+/, '')}</span>
+                                        <span class="tag tag-type">${s.sType}</span>
+                                        <span class="tag tag-level">${levelTag}</span>
+                                    </div>
+                                    <div class="school-divider"></div>
+                                    <div class="school-detail">
+                                        <div class="detail-item"><span class="detail-label">办学层次：</span><span class="detail-val">${s.level}</span></div>
+                                        <div class="detail-item"><span class="detail-label">公/民办：</span><span class="detail-val">${s.type}</span></div>
+                                        <div class="detail-item"><span class="detail-label">运行状态：</span><span class="detail-val"><span class="status-tag ${statusClass}">${s.status}</span></span></div>
+                                        <div class="detail-item"><span class="detail-label">举办者：</span><span class="detail-val">${s.sponsor}</span></div>
+                                        <div class="detail-item"><span class="detail-label">举办者类型：</span><span class="detail-val">${s.sType}</span></div>
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>`;
+                }
+            });
+            body.innerHTML = html || '<div style="text-align:center;color:#94a3b8;margin-top:40px;">暂无该地区数据</div>';
+        }
+
+        function toggleCategory(title) {
+            const block = document.getElementById(`block-${title}`);
+            if(block) block.classList.toggle('expanded');
+        }
+
+        function toggleSchool(el) {
+            event.stopPropagation();
+            el.classList.toggle('detail-active');
+        }
+
+        window.onload = () => {
+            initMapLabels();
+            render('武汉市');
+        };
+    </script>
+</body>
+</html>
