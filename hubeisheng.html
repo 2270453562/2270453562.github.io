@@ -46,7 +46,7 @@
             box-shadow: 0 4px 10px rgba(253, 58, 9, 0.2);
         }
 
-        .main-container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; min-height: 78vh; }
+        .main-container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; height: 78vh; }
 
         .map-section {
             flex: 1.6; background: var(--card-bg); border-radius: 20px;
@@ -113,7 +113,8 @@
 
         .school-detail { display: none; font-size: 11px; color: #64748b; margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px; }
         .school-card.detail-active .school-detail { display: block; }
-        .detail-label { width: 75px; display: inline-block; color: #94a3b8; }
+        .detail-item { display: flex; margin-bottom: 3px; }
+        .detail-label { width: 75px; display: inline-block; color: #94a3b8; flex-shrink: 0; }
         .detail-val { color: #334155; }
 
         @media (max-width: 850px) {
@@ -124,7 +125,7 @@
             .info-section { height: 500px; margin-top: 10px; }
         }
 
-        /* 坐标校准 */
+        /* 坐标位置 */
         #spot-wuhan { top: 60%; left: 74%; } #spot-xiangyang { top: 40%; left: 48%; } 
         #spot-yichang { top: 59%; left: 38%; } #spot-shiyan { top: 29.5%; left: 33%; } 
         #spot-xiaogan { top: 54%; left: 68%; } #spot-jingmen { top: 54%; left: 50%; } 
@@ -139,7 +140,7 @@
 
     <div class="header">
         <h1>🎓 湖北省高职院校分布查询系统</h1>
-        <p>✨ 只有非本科、非双高的学校才归入普通专科分类 | 该市总数保持唯一统计</p>
+        <p>✨ 只有非本科、非双高的学校归入专科分类 | 数据一键查询</p>
     </div>
 
     <div class="province-nav">
@@ -292,11 +293,9 @@
             const schools = cityMap[cityName] || [];
             const body = document.getElementById('info-body');
             document.getElementById('title-city').innerText = cityName;
-            
-            // 总数统计保持唯一计数
             document.getElementById('count-text').innerText = `📊 该区域共收录 ${schools.length} 所院校`;
 
-            // 初始化分类容器
+            // 分类定义（注意：Key必须与下方renderOrder对应）
             const groups = {
                 "职业本科": [],
                 "双高院校": [],
@@ -308,23 +307,19 @@
                 const isDH = doubleHighNames.includes(s.name.trim());
                 const isU = s.level === "职业本科";
 
-                // 分类投放逻辑
+                // 并列逻辑：一校可出现在多个精英组
                 if (isU) groups["职业本科"].push(s);
                 if (isDH) groups["双高院校"].push(s);
                 
-                // 核心逻辑：只有【既不是本科】且【也不是双高】的学校，才进入“普通专科”分类
+                // 独占逻辑：只有非本科、非双高的学校才进入普通分类
                 if (!isU && !isDH) {
-                    if (s.type === "公办") {
-                        groups["公办专科"].push(s);
-                    } else {
-                        groups["民办专科"].push(s);
-                    }
+                    if (s.type === "公办") groups["公办专科"].push(s);
+                    else groups["民办专科"].push(s);
                 }
             });
 
             const isBigCity = (cityName === '武汉市' || cityName === '宜昌市' || cityName === '襄阳市');
             let html = '';
-            // 确保渲染顺序与容器 Key 完全一致
             const renderOrder = ["职业本科", "双高院校", "公办专科", "民办专科"];
             
             renderOrder.forEach(title => {
@@ -354,11 +349,9 @@
                                         <span class="tag tag-level">${levelTag}</span>
                                     </div>
                                     <div class="school-detail">
-                                        <div class="detail-item"><span class="detail-label">办学层次：</span><span class="detail-val">${s.level}</span></div>
-                                        <div class="detail-item"><span class="detail-label">公/民办：</span><span class="detail-val">${s.type}</span></div>
-                                        <div class="detail-item"><span class="detail-label">运行状态：</span><span class="detail-val"><span class="status-tag ${statusClass}">${s.status}</span></span></div>
                                         <div class="detail-item"><span class="detail-label">举办者：</span><span class="detail-val">${s.sponsor}</span></div>
-                                        <div class="detail-item"><span class="detail-label">举办者类型：</span><span class="detail-val">${s.sType}</span></div>
+                                        <div class="detail-item"><span class="detail-label">办学层次：</span><span class="detail-val">${s.level}</span></div>
+                                        <div class="detail-item"><span class="detail-label">运行状态：</span><span class="detail-val">${s.status}</span></div>
                                     </div>
                                 </div>`;
                             }).join('')}
