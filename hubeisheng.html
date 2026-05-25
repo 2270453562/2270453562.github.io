@@ -30,123 +30,175 @@
         }
 
         .header { text-align: center; margin-bottom: 15px; }
-        .header h1 { font-size: 26px; margin: 0; color: var(--text-dark); }
-        .header p { color: var(--text-gray); margin-top: 8px; font-size: 14px; }
+        .header h1 { font-size: 24px; margin: 0; color: var(--text-dark); }
+        .header p { color: var(--text-gray); margin-top: 8px; font-size: 13px; }
 
-        /* 新增：省份切换导航样式 */
+        /* 省份切换导航样式 */
         .province-nav {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 10px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
         .nav-btn {
-            padding: 10px 25px;
+            padding: 8px 18px;
             background: var(--card-bg);
             border: 1px solid #cbd5e1;
             border-radius: 50px;
             color: var(--text-dark);
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .nav-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            transform: translateY(-2px);
         }
         .nav-btn.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(253, 58, 9, 0.3);
+            box-shadow: 0 4px 10px rgba(253, 58, 9, 0.2);
         }
 
-        .main-container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; height: 82vh; }
+        /* 主容器响应式布局 */
+        .main-container { 
+            display: flex; 
+            gap: 20px; 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            height: 78vh; 
+        }
 
+        /* 地图区域：锁定比例关键 */
         .map-section {
-            flex: 1.6; background: var(--card-bg); border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
+            flex: 1.6;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+            align-self: flex-start; /* 防止纵向拉伸 */
+            overflow: hidden;
         }
 
-        .map-image { width: 100%; height: 95%; object-fit: contain; }
+        .map-image { 
+            width: 100%; 
+            height: auto; 
+            display: block; 
+            object-fit: contain;
+        }
 
+        /* 城市按钮通用样式 */
         .city-spot {
-            position: absolute; background: white; padding: 6px 14px; border-radius: 30px; font-size: 13px;
-            font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: translate(-50%, -50%); border: 1px solid #cbd5e1; z-index: 10; white-space: nowrap;
+            transform: translate(-50%, -50%);
+            border: 1px solid #cbd5e1;
+            z-index: 10;
+            white-space: nowrap;
         }
 
-        .dh-num { color: var(--highlight-green); margin-left: 4px; font-size: 15px; }
+        .dh-num { color: var(--highlight-green); margin-left: 2px; font-size: 14px; }
 
         .city-spot:hover, .city-spot.active {
-            background: var(--primary); color: white; transform: translate(-50%, -50%) scale(1.15);
+            background: var(--primary); color: white; transform: translate(-50%, -50%) scale(1.1);
             z-index: 20; border-color: var(--primary);
         }
         .city-spot:hover .dh-num, .city-spot.active .dh-num { color: #ffffff; }
 
+        /* 信息列表区域 */
         .info-section {
             flex: 1; background: var(--card-bg); border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             display: flex; flex-direction: column; overflow: hidden;
         }
 
-        .info-header { padding: 20px; background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-bottom: 1px solid #e2e8f0; }
-        .city-title { font-size: 22px; margin: 0; font-weight: 800; }
+        .info-header { padding: 15px; background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-bottom: 1px solid #e2e8f0; }
+        .city-title { font-size: 20px; margin: 0; font-weight: 800; }
         .city-hint { font-size: 12px; color: var(--text-gray); margin-top: 4px; }
 
-        .info-body { padding: 15px; overflow-y: auto; flex: 1; }
-        .info-body::-webkit-scrollbar { width: 5px; }
+        .info-body { padding: 12px; overflow-y: auto; flex: 1; }
+        .info-body::-webkit-scrollbar { width: 4px; }
         .info-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        .category-block { margin-bottom: 12px; }
+        /* 学校卡片样式 */
+        .category-block { margin-bottom: 10px; }
         .category-name {
-            background: #f1f5f9; padding: 12px 16px; border-radius: 10px; font-size: 14px;
+            background: #f1f5f9; padding: 10px 14px; border-radius: 8px; font-size: 13px;
             font-weight: 700; color: #334155; cursor: pointer; display: flex;
-            justify-content: space-between; align-items: center; transition: background 0.2s;
+            justify-content: space-between; align-items: center;
         }
-        .category-name:hover { background: #e2e8f0; }
-        .category-name::after { content: '展开'; font-size: 11px; color: var(--text-gray); font-weight: normal; }
+        .category-name::after { content: '展开'; font-size: 10px; color: var(--text-gray); }
         .category-block.expanded .category-name::after { content: '收回'; }
 
-        .school-list { display: none; padding: 10px 5px 0 5px; }
+        .school-list { display: none; padding-top: 8px; }
         .category-block.expanded .school-list { display: block; }
 
         .school-card {
-            background: #f8fafc; border-radius: 10px; margin-bottom: 8px; border: 1px solid #edf2f7;
-            padding: 12px 15px; cursor: pointer; transition: all 0.2s;
+            background: #f8fafc; border-radius: 8px; margin-bottom: 6px; border: 1px solid #edf2f7;
+            padding: 10px; cursor: pointer;
         }
-        .school-card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .school-card.undergrad-card { background: var(--undergrad-bg); border-left: 4px solid #f97316; }
-
-        .school-name { font-size: 15px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; display: block; }
-        .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
-        .tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
-        
-        .tag-double-high { background: var(--tag-double-high-bg); color: var(--tag-double-high-text); border: 1px solid #fecdd3; }
+        .school-card.undergrad-card { border-left: 4px solid #f97316; }
+        .school-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; display: block; }
+        .tag-row { display: flex; gap: 4px; flex-wrap: wrap; }
+        .tag { font-size: 9px; padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+        .tag-double-high { background: var(--tag-double-high-bg); color: var(--tag-double-high-text); }
         .tag-cat { background: var(--tag-cat-bg); color: var(--tag-cat-text); }
-        .tag-type { background: var(--tag-type-bg); color: var(--tag-type-text); } 
-        .tag-level { background: var(--tag-level-bg); color: var(--tag-level-text); } 
+        .tag-type { background: var(--tag-type-bg); color: var(--tag-type-text); }
+        .tag-level { background: var(--tag-level-bg); color: var(--tag-level-text); }
 
-        .school-divider { border-top: 1px dashed #e2e8f0; margin: 10px 0; display: none; }
-        .school-card.detail-active .school-divider { display: block; }
-
-        .school-detail { display: none; font-size: 13px; color: #64748b; line-height: 1.8; }
+        .school-detail { display: none; font-size: 11px; color: #64748b; margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px; }
         .school-card.detail-active .school-detail { display: block; }
-
-        .detail-item { display: flex; align-items: flex-start; }
-        .detail-label { width: 95px; flex-shrink: 0; color: #94a3b8; }
-        .detail-val { color: #334155; font-weight: 500; }
-
-        .status-tag { padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .detail-item { display: flex; margin-bottom: 3px; }
+        .detail-label { width: 70px; color: #94a3b8; flex-shrink: 0; }
+        .detail-val { color: #334155; }
+        .status-tag { padding: 0 4px; border-radius: 3px; font-weight: bold; }
         .status-zb { background: #dcfce7; color: #166534; }
-        .status-xb { background: #fff7ed; color: #9a3412; }
-        .status-tb { background: #f1f5f9; color: #64748b; }
 
-        /* 坐标校准 */
+        /* ---------------------------------
+           移动端适配 (重点修改部分)
+        ---------------------------------- */
+        @media (max-width: 850px) {
+            body { padding: 10px; }
+            .header h1 { font-size: 20px; }
+            
+            .main-container { 
+                flex-direction: column; 
+                height: auto; 
+                gap: 15px;
+            }
+
+            .map-section {
+                flex: none;
+                width: 100%;
+                border-radius: 15px;
+                background: #fff;
+            }
+
+            /* 缩小按钮防止重叠 */
+            .city-spot {
+                padding: 3px 8px;
+                font-size: 10px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            .dh-num {
+                font-size: 11px;
+            }
+
+            .info-section {
+                height: 550px; /* 列表固定高度防止页面过长 */
+            }
+
+            /* 微调极近城市在手机端的显示，防止重叠 */
+            #spot-ezhou { margin-left: 2px; } /* 鄂州 */
+            #spot-huangshi { margin-top: 2px; } /* 黄石 */
+        }
+
+        /* 坐标校准 (保持百分比) */
         #spot-wuhan { top: 60%; left: 74%; } 
         #spot-xiangyang { top: 45%; left: 48%; } 
         #spot-yichang { top: 58%; left: 38%; } 
@@ -162,21 +214,16 @@
         #spot-enshi { top: 69%; left: 22%; } 
         #spot-xianning { top: 72%; left: 74%; } 
         #spot-ezhou { top: 64%; left: 79%; } 
-
-        @media (max-width: 900px) {
-            .main-container { flex-direction: column; height: auto; }
-            .info-section { height: 500px; }
-        }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>🎓 湖北省高职院校分布查询系统</h1>
-        <p>二级卡片显示：性质类别、举办者类型、级别 | ✨ 仅标记国家“双高计划”单位</p>
+        <p>✨ 国家“双高计划”单位已绿色高亮标注</p>
     </div>
 
-    <!-- 新增：省份切换导航栏 -->
+    <!-- 省份切换导航栏 -->
     <div class="province-nav">
         <a href="./index.html" class="nav-btn">安徽省</a>
         <a href="javascript:void(0)" class="nav-btn active">湖北省</a>
@@ -187,6 +234,7 @@
     <div class="main-container">
         <div class="map-section">
             <img src="./hubei map.png" class="map-image" alt="湖北省地图">
+            <!-- 城市按钮 -->
             <div class="city-spot" id="spot-wuhan" data-city="武汉市" onclick="render('武汉市')">武汉</div>
             <div class="city-spot" id="spot-xiangyang" data-city="襄阳市" onclick="render('襄阳市')">襄阳</div>
             <div class="city-spot" id="spot-yichang" data-city="宜昌市" onclick="render('宜昌市')">宜昌</div>
@@ -206,18 +254,16 @@
 
         <div class="info-section">
             <div class="info-header">
-                <h2 class="city-title" id="title-city">请选择城市</h2>
-                <div class="city-hint" id="count-text">点击地图进行查询</div>
+                <h2 class="city-title" id="title-city">武汉市</h2>
+                <div class="city-hint" id="count-text">加载中...</div>
             </div>
             <div class="info-body" id="info-body"></div>
         </div>
     </div>
 
     <script>
-        const doubleHighNames = [
-            "武汉职业技术大学", "武汉船舶职业技术学院", "武汉城市职业学院", "武汉软件工程职业学院",
-            "武汉交通职业学院", "武汉铁路职业技术学院", "襄阳职业技术大学", "湖北三峡职业技术大学"
-        ];
+        // 保持原有的数据逻辑不变
+        const doubleHighNames = ["武汉职业技术大学", "武汉船舶职业技术学院", "武汉城市职业学院", "武汉软件工程职业学院", "武汉交通职业学院", "武汉铁路职业技术学院", "襄阳职业技术大学", "湖北三峡职业技术大学"];
         
         const rawData = [
             { name: "武汉职业技术大学", city: "武汉市", cat: "02理工院校", level: "职业本科", type: "公办", status: "在办", sponsor: "湖北省人民政府", sType: "省级教育部门" },
@@ -338,27 +384,22 @@
                 else groups["民办专科"].push(s);
             });
 
-            const isBigCity = (cityName === '武汉市' || cityName === '宜昌市' || cityName === '襄阳市');
             let html = '';
             const order = ["职业本科", "双高院校", "公办专科", "民办专科"];
             
             order.forEach(title => {
                 const list = groups[title];
                 if (list && list.length > 0) {
-                    const expandedClass = (isBigCity && title !== "职业本科" && title !== "双高院校") ? '' : 'expanded';
-                    
                     html += `
-                    <div class="category-block ${expandedClass}" id="block-${title}">
+                    <div class="category-block expanded" id="block-${title}">
                         <div class="category-name" onclick="toggleCategory('${title}')">
-                            ${title === "双高院校" ? '✨ ' : ''}${title} (${list.length})
+                            ${title} (${list.length})
                         </div>
                         <div class="school-list">
                             ${list.map(s => {
                                 const isDH = doubleHighNames.includes(s.name);
                                 const isU = s.level === "职业本科";
-                                const statusClass = s.status === '在办' ? 'status-zb' : (s.status === '新办' ? 'status-xb' : 'status-tb');
                                 const levelTag = getSponsorLevelTag(s);
-
                                 return `
                                 <div class="school-card ${isU ? 'undergrad-card' : ''}" onclick="toggleSchool(this)">
                                     <span class="school-name">${s.name}</span>
@@ -368,13 +409,9 @@
                                         <span class="tag tag-type">${s.sType}</span>
                                         <span class="tag tag-level">${levelTag}</span>
                                     </div>
-                                    <div class="school-divider"></div>
                                     <div class="school-detail">
-                                        <div class="detail-item"><span class="detail-label">办学层次：</span><span class="detail-val">${s.level}</span></div>
-                                        <div class="detail-item"><span class="detail-label">公/民办：</span><span class="detail-val">${s.type}</span></div>
-                                        <div class="detail-item"><span class="detail-label">运行状态：</span><span class="detail-val"><span class="status-tag ${statusClass}">${s.status}</span></span></div>
                                         <div class="detail-item"><span class="detail-label">举办者：</span><span class="detail-val">${s.sponsor}</span></div>
-                                        <div class="detail-item"><span class="detail-label">举办者类型：</span><span class="detail-val">${s.sType}</span></div>
+                                        <div class="detail-item"><span class="detail-label">运行状态：</span><span class="detail-val">${s.status}</span></div>
                                     </div>
                                 </div>`;
                             }).join('')}
@@ -382,12 +419,11 @@
                     </div>`;
                 }
             });
-            body.innerHTML = html || '<div style="text-align:center;color:#94a3b8;margin-top:40px;">暂无该地区数据</div>';
+            body.innerHTML = html;
         }
 
         function toggleCategory(title) {
-            const block = document.getElementById(`block-${title}`);
-            if(block) block.classList.toggle('expanded');
+            document.getElementById(`block-${title}`).classList.toggle('expanded');
         }
 
         function toggleSchool(el) {
