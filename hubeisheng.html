@@ -299,8 +299,8 @@
             const groups = {
                 "职业本科": [],
                 "双高院校": [],
-                "公办专科": [],
-                "民办专科": []
+                "公办专科（非双高）": [],
+                "民办专科（非双高）": []
             };
 
             schools.forEach(s => {
@@ -313,14 +313,14 @@
                 
                 // 独占逻辑：只有非本科、非双高的学校才进入普通分类
                 if (!isU && !isDH) {
-                    if (s.type === "公办") groups["公办专科"].push(s);
-                    else groups["民办专科"].push(s);
+                    if (s.type === "公办") groups["公办专科（非双高）"].push(s);
+                    else groups["民办专科（非双高）"].push(s);
                 }
             });
 
             const isBigCity = (cityName === '武汉市' || cityName === '宜昌市' || cityName === '襄阳市');
             let html = '';
-            const renderOrder = ["职业本科", "双高院校", "公办专科", "民办专科"];
+            const renderOrder = ["职业本科", "双高院校", "公办专科（非双高）", "民办专科（非双高）"];
             
             renderOrder.forEach(title => {
                 const list = groups[title];
