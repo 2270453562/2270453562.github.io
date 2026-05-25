@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>湖北省高职院校分布查询</title>
+    <title>湖北省高职院校分布查询系统</title>
     <style>
         :root {
             --bg-color: #f0f4f8;
@@ -125,22 +125,14 @@
         }
 
         /* 坐标校准 */
-        #spot-wuhan { top: 60%; left: 74%; } 
-        #spot-xiangyang { top: 40%; left: 48%; } 
-        #spot-yichang { top: 59%; left: 38%; } 
-        #spot-shiyan { top: 29.5%; left: 33%; } 
-        #spot-xiaogan { top: 54%; left: 68%; } 
-        #spot-jingmen { top: 54%; left: 50%; } 
-        #spot-jingzhou { top: 76%; left: 48%; } 
-        #spot-huangshi { top: 75%; left: 82.5%; } 
-        #spot-huanggang { top: 63%; left: 85%; } 
-        #spot-suizhou { top: 40%; left: 62%; } 
-        #spot-xiantao { top: 72%; left: 63%; } 
-        #spot-qianjiang { top: 72%; left: 56%; } 
-        #spot-tianmen { top: 61%; left: 60%; } 
-        #spot-enshi { top: 73%; left: 22%; } 
-        #spot-xianning { top: 82%; left: 74%; } 
-        #spot-ezhou { top: 69%; left: 77%; } 
+        #spot-wuhan { top: 60%; left: 74%; } #spot-xiangyang { top: 40%; left: 48%; } 
+        #spot-yichang { top: 59%; left: 38%; } #spot-shiyan { top: 29.5%; left: 33%; } 
+        #spot-xiaogan { top: 54%; left: 68%; } #spot-jingmen { top: 54%; left: 50%; } 
+        #spot-jingzhou { top: 76%; left: 48%; } #spot-huangshi { top: 75%; left: 82.5%; } 
+        #spot-huanggang { top: 63%; left: 85%; } #spot-suizhou { top: 40%; left: 62%; } 
+        #spot-xiantao { top: 72%; left: 63%; } #spot-qianjiang { top: 72%; left: 56%; } 
+        #spot-tianmen { top: 61%; left: 60%; } #spot-enshi { top: 73%; left: 22%; } 
+        #spot-xianning { top: 82%; left: 74%; } #spot-ezhou { top: 69%; left: 77%; } 
     </style>
 </head>
 <body>
@@ -301,35 +293,41 @@
             const body = document.getElementById('info-body');
             document.getElementById('title-city').innerText = cityName;
             
-            // 总数统计：基于 schools 的原始唯一长度
+            // 总数统计保持唯一计数
             document.getElementById('count-text').innerText = `📊 该区域共收录 ${schools.length} 所院校`;
 
-            const groups = { "职业本科": [], "双高院校": [], "公办专科（非双高）": [], "民办专科（非双高）": [] };
+            // 初始化分类容器
+            const groups = {
+                "职业本科": [],
+                "双高院校": [],
+                "公办专科": [],
+                "民办专科": []
+            };
 
             schools.forEach(s => {
-                const isDH = doubleHighNames.includes(s.name);
+                const isDH = doubleHighNames.includes(s.name.trim());
                 const isU = s.level === "职业本科";
 
-                // --- 逻辑调整部分 ---
-                
-                // 1. 如果是本科，进入本科组（本科可以是双高，所以单独判断）
+                // 分类投放逻辑
                 if (isU) groups["职业本科"].push(s);
-                
-                // 2. 如果是双高，进入双高组
                 if (isDH) groups["双高院校"].push(s);
                 
-                // 3. 只有【既不是本科】且【也不是双高】的学校，才进入普通专科组
+                // 核心逻辑：只有【既不是本科】且【也不是双高】的学校，才进入“普通专科”分类
                 if (!isU && !isDH) {
-                    if (s.type === "公办") groups["公办专科"].push(s);
-                    else groups["民办专科"].push(s);
+                    if (s.type === "公办") {
+                        groups["公办专科"].push(s);
+                    } else {
+                        groups["民办专科"].push(s);
+                    }
                 }
             });
 
             const isBigCity = (cityName === '武汉市' || cityName === '宜昌市' || cityName === '襄阳市');
             let html = '';
-            const order = ["职业本科", "双高院校", "公办专科", "民办专科"];
+            // 确保渲染顺序与容器 Key 完全一致
+            const renderOrder = ["职业本科", "双高院校", "公办专科", "民办专科"];
             
-            order.forEach(title => {
+            renderOrder.forEach(title => {
                 const list = groups[title];
                 if (list && list.length > 0) {
                     const expandedClass = (isBigCity && title !== "职业本科" && title !== "双高院校") ? '' : 'expanded';
@@ -341,7 +339,7 @@
                         </div>
                         <div class="school-list">
                             ${list.map(s => {
-                                const isDH = doubleHighNames.includes(s.name);
+                                const isDH = doubleHighNames.includes(s.name.trim());
                                 const isU = s.level === "职业本科";
                                 const statusClass = s.status === '在办' ? 'status-zb' : (s.status === '新办' ? 'status-xb' : 'status-tb');
                                 const levelTag = getSponsorLevelTag(s);
